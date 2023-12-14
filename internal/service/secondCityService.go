@@ -13,7 +13,7 @@ type SecondCityService struct {
 }
 
 func NewSecondCityService(cityRep repository.CityRepository, kafkaWriter *kafka.Writer) ICityService {
-	return &FirstCityService{cityRep: cityRep, kafkaWriter: kafkaWriter}
+	return &SecondCityService{cityRep: cityRep, kafkaWriter: kafkaWriter}
 }
 
 func (s *SecondCityService) Create(name string, population int) (string, error) {
