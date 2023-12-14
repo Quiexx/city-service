@@ -4,16 +4,14 @@ import (
 	"github.com/Quiexx/city-service/internal/model"
 	"github.com/Quiexx/city-service/internal/repository"
 	"github.com/google/uuid"
-	"github.com/segmentio/kafka-go"
 )
 
 type SecondCityService struct {
-	kafkaWriter *kafka.Writer
-	cityRep     repository.CityRepository
+	cityRep repository.CityRepository
 }
 
-func NewSecondCityService(cityRep repository.CityRepository, kafkaWriter *kafka.Writer) ICityService {
-	return &SecondCityService{cityRep: cityRep, kafkaWriter: kafkaWriter}
+func NewSecondCityService(cityRep repository.CityRepository) ICityService {
+	return &SecondCityService{cityRep: cityRep}
 }
 
 func (s *SecondCityService) Create(name string, population int) (string, error) {
@@ -54,9 +52,5 @@ func (s *SecondCityService) Delete(id string) error {
 func (s *SecondCityService) GetById(id string) (*model.City, error) {
 	city, err := s.cityRep.GetById(id)
 	return city, err
-
-}
-
-func (s *SecondCityService) SendToKafka() {
 
 }

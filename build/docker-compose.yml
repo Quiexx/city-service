@@ -1,68 +1,102 @@
 version: '3'
 
 services:
-  # service_1:
-  #   image: golang:latest
-  #   container_name: service_1
-  #   volumes:
-  #     - ../cmd/first-service:/app
-  #   working_dir: /app
-  #   command: go run main.go
-  #   # depends_on:
-      # - postgres_1
-      # - kafka
+  service_1:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile.first
+    container_name: service_1
+    env_file:
+      - ./.env.first
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgres_1
+      - kafka
+    networks:
+      - first-db
+      - kafka-network
+    restart: unless-stopped
 
-  # service_2:
-  #   image: golang:latest
-  #   container_name: golang_service_2
-  #   volumes:
-  #     - ./golang_service_2:/app
-  #   working_dir: /app
-  #   command: go run main.go
-  #   depends_on:
-  #     - postgres_2
-  #     - kafka
+  service_2:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile.second
+    container_name: service_2
+    hostname: service_2
+    ports:
+      - 8082:8082
+    env_file:
+      - ./.env.second
+    depends_on:
+      - postgres_2
+      - kafka
+    networks:
+      - second-db
+      - kafka-network
+      - third-second
+    restart: unless-stopped
 
-  # service_3:
-  #   image: golang:latest
-  #   container_name: golang_service_3
-  #   volumes:
-  #     - ./golang_service_3:/app
-  #   working_dir: /app
-  #   command: go run main.go
+  service_3:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile.third
+    container_name: service_3
+    env_file:
+      - ./.env.third
+    ports:
+      - 8083:8083
+    networks:
+      - third-second
+    restart: unless-stopped
 
   postgres_1:
     image: postgres:latest
     container_name: postgres_1
+    hostname: postgres_1
     volumes:
     - ./first-init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env.first
     ports:
       - 5433:5432
+    networks:
+      - first-db
+    restart: unless-stopped
 
   postgres_2:
     image: postgres:latest
     container_name: postgres_2
+    hostname: postgres_2
     volumes:
     - ./second-init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env.second
     ports:
       - 5434:5432
+    networks:
+      - second-db
+    restart: unless-stopped
 
   kafka:
     image: 'wurstmeister/kafka:latest'
     container_name: kafka
+    hostname: kafka
     environment:
-      - KAFKA_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
     ports:
       - '9092:9092'
+      - '9094:9094'
     depends_on:
       - zookeeper
+    networks:
+      - kafka-network
+    restart: unless-stopped
 
   zookeeper:
     image: 'wurstmeister/zookeeper:latest'
@@ -71,3 +105,12 @@ services:
       - ZOOKEEPER_CLIENT_PORT=2181
     ports:
       - "2181:2181"
+    networks:
+      - kafka-network
+    restart: unless-stopped
+
+networks:
+  first-db:
+  kafka-network:
+  second-db:
+  third-second:

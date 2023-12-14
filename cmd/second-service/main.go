@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,8 +20,37 @@ import (
 )
 
 func main() {
+	dbHost := os.Getenv("SERVICE_DB_HOST")
+	if len(dbHost) == 0 {
+		dbHost = "localhost"
+	}
 
-	dsn := "host=localhost user=postgres password=postgres dbname=second_db port=5434 sslmode=disable"
+	dbPort := os.Getenv("SERVICE_DB_PORT")
+	if len(dbPort) == 0 {
+		dbPort = "5434"
+	}
+
+	dbUser := os.Getenv("POSTGRES_USER")
+	if len(dbUser) == 0 {
+		dbPort = "postgres"
+	}
+
+	dbPass := os.Getenv("POSTGRES_PASSWORD")
+	if len(dbPass) == 0 {
+		dbPass = "postgres"
+	}
+
+	dbName := os.Getenv("POSTGRES_DB")
+	if len(dbName) == 0 {
+		dbName = "second_db"
+	}
+
+	kafkaHost := os.Getenv("SERVICE_KAFKA_HOST")
+	if len(kafkaHost) == 0 {
+		kafkaHost = "localhost:9092"
+	}
+
+	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
@@ -27,21 +58,15 @@ func main() {
 	}
 
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:        []string{"localhost:9092"},
+		Brokers:        []string{kafkaHost},
 		Topic:          "city-updates",
 		Partition:      0,
 		CommitInterval: time.Second,
 	})
 	kafkaReader.SetOffsetAt(context.Background(), time.Now())
 
-	kafkaWriter := kafka.Writer{
-		Addr:                   kafka.TCP("localhost:9092"),
-		Topic:                  "city-requests",
-		AllowAutoTopicCreation: true,
-	}
-
 	cityRep := repository.NewPGCityRepository(db)
-	cityService := service.NewSecondCityService(cityRep, &kafkaWriter)
+	cityService := service.NewSecondCityService(cityRep)
 
 	go startListeningTopic(kafkaReader, cityService)
 

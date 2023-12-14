@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -21,6 +22,10 @@ func (s *ThirdCityService) GetById(id string) (*model.City, error) {
 	resp, err := http.Get(utlWithId)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("city not found")
 	}
 
 	defer resp.Body.Close()

@@ -1,0 +1,18 @@
+FROM golang:latest
+
+WORKDIR /app
+
+COPY ./go.mod ./go.mod
+COPY ./go.sum ./go.sum
+COPY ./cmd/first-service/main.go ./main.go
+COPY ./internal ./internal
+
+RUN mkdir ./run
+
+RUN go mod download
+
+RUN go build -o ./run/main ./main.go
+
+EXPOSE 8081
+
+ENTRYPOINT ["./run/main"]

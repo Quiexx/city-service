@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,7 +11,10 @@ import (
 
 func main() {
 
-	citiesUrl := "http://localhost:8082/city"
+	citiesUrl := os.Getenv("CITY_URL")
+	if len(citiesUrl) == 0 {
+		citiesUrl = "http://localhost:8082/city"
+	}
 	cityService := service.NewThirdCityService(citiesUrl)
 
 	r := gin.Default()
