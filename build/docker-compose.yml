@@ -33,7 +33,7 @@ services:
 
   postgres_1:
     image: postgres:latest
-    container_name: postgres
+    container_name: postgres_1
     volumes:
     - ./first-init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
@@ -41,13 +41,15 @@ services:
     ports:
       - 5433:5432
 
-  # postgres_2:
-  #   image: postgres:latest
-  #   container_name: postgres_2
-  #   environment:
-  #     POSTGRES_DB: your_db_name_2
-  #     POSTGRES_USER: your_db_user_2
-  #     POSTGRES_PASSWORD: your_db_password_2
+  postgres_2:
+    image: postgres:latest
+    container_name: postgres_2
+    volumes:
+    - ./second-init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.env.second
+    ports:
+      - 5434:5432
 
   kafka:
     image: 'wurstmeister/kafka:latest'
