@@ -35,8 +35,8 @@ type CityService struct {
 	cityRep repository.CityRepository
 }
 
-func NewCityService() ICityService {
-	return &CityService{cityRep: repository.NewMemoryCityRepository()}
+func NewCityService(cityRep repository.CityRepository) ICityService {
+	return &CityService{cityRep: cityRep}
 }
 
 func (s *CityService) Create(name string, population int) (string, error) {

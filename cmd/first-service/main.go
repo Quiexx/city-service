@@ -1,18 +1,29 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/Quiexx/city-service/internal/model"
+	"github.com/Quiexx/city-service/internal/repository"
 	"github.com/Quiexx/city-service/internal/service"
 )
 
 func main() {
 	r := gin.Default()
 
-	cityService := service.NewCityService()
+	dsn := "host=localhost user=postgres password=postgres dbname=first_db port=5433 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	cityRep := repository.NewPGCityRepository(db)
+	cityService := service.NewCityService(cityRep)
 
 	// Create new city
 	r.POST("/city", func(c *gin.Context) {

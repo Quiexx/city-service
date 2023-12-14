@@ -1,3 +1,5 @@
-CREATE TABLE IF NOT EXISTS test (
-    text text
+CREATE TABLE IF NOT EXISTS cities (
+    id text,
+    name text,
+    population int
 );

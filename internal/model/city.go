@@ -11,7 +11,7 @@ type UpdateCityRequest struct {
 }
 
 type City struct {
-	ID         string `json:"uuid"`
+	ID         string `json:"id";gorm:"primaryKey"`
 	Name       string `json:"name"`
 	Population int    `json:"population"`
 }
