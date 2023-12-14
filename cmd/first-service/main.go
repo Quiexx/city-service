@@ -12,7 +12,7 @@ import (
 func main() {
 	r := gin.Default()
 
-	cityService := service.MockCityService{}
+	cityService := service.NewCityService()
 
 	// Create new city
 	r.POST("/city", func(c *gin.Context) {
@@ -35,11 +35,11 @@ func main() {
 	})
 
 	// Update city
-	r.POST("/city/:uuid", func(c *gin.Context) {
+	r.POST("/city/:id", func(c *gin.Context) {
 
 		var city model.UpdateCityRequest
 
-		uuid := c.Param("uuid")
+		id := c.Param("id")
 
 		err := c.ShouldBindJSON(&city)
 		if err != nil {
@@ -47,7 +47,7 @@ func main() {
 			return
 		}
 
-		err = cityService.Update(&model.City{UUID: uuid, Name: city.Name, Population: city.Population})
+		err = cityService.Update(&model.City{ID: id, Name: city.Name, Population: city.Population})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

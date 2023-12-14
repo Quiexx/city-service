@@ -11,7 +11,7 @@ type UpdateCityRequest struct {
 }
 
 type City struct {
-	UUID       string `json:"uuid"`
+	ID         string `json:"uuid"`
 	Name       string `json:"name"`
 	Population int    `json:"population"`
 }
