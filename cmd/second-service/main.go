@@ -32,6 +32,7 @@ func main() {
 		Partition:      0,
 		CommitInterval: time.Second,
 	})
+	kafkaReader.SetOffsetAt(context.Background(), time.Now())
 
 	kafkaWriter := kafka.Writer{
 		Addr:                   kafka.TCP("localhost:9092"),
