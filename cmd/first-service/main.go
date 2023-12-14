@@ -68,9 +68,9 @@ func main() {
 	})
 
 	// Delete city
-	r.DELETE("/city/:uuid", func(c *gin.Context) {
+	r.DELETE("/city/:id", func(c *gin.Context) {
 
-		uuid := c.Param("uuid")
+		uuid := c.Param("id")
 
 		err := cityService.Delete(uuid)
 		if err != nil {
@@ -79,6 +79,20 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{})
+	})
+
+	// Get city
+	r.GET("/city/:id", func(c *gin.Context) {
+
+		uuid := c.Param("id")
+
+		city, err := cityService.GetById(uuid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"id": city.ID, "name": city.Name, "population": city.Population})
 	})
 
 	r.Run(":8081")
