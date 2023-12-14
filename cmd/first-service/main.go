@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/segmentio/kafka-go"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -14,7 +15,6 @@ import (
 )
 
 func main() {
-	r := gin.Default()
 
 	dsn := "host=localhost user=postgres password=postgres dbname=first_db port=5433 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -22,8 +22,17 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+
+	kafkaWriter := kafka.Writer{
+		Addr:                   kafka.TCP("localhost:9092"),
+		Topic:                  "city-updates",
+		AllowAutoTopicCreation: true,
+	}
+
 	cityRep := repository.NewPGCityRepository(db)
-	cityService := service.NewCityService(cityRep)
+	cityService := service.NewFirstCityService(cityRep, &kafkaWriter)
+
+	r := gin.Default()
 
 	// Create new city
 	r.POST("/city", func(c *gin.Context) {
