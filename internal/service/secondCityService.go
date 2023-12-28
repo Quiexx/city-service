@@ -52,5 +52,9 @@ func (s *SecondCityService) Delete(id string) error {
 func (s *SecondCityService) GetById(id string) (*model.City, error) {
 	city, err := s.cityRep.GetById(id)
 	return city, err
+}
 
+func (s *SecondCityService) GetAll() ([]*model.City, error) {
+	cities, err := s.cityRep.GetAll()
+	return cities, err
 }

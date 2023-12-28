@@ -96,6 +96,18 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"id": city.ID, "name": city.Name, "population": city.Population})
 	})
 
+	// Get cities
+	r.GET("/city", func(c *gin.Context) {
+
+		cities, err := cityService.GetAll()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"cities": cities})
+	})
+
 	r.Run(":8082")
 }
 

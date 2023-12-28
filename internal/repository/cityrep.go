@@ -7,4 +7,5 @@ type CityRepository interface {
 	Update(city *model.City) error
 	Delete(id string) error
 	GetById(id string) (*model.City, error)
+	GetAll() ([]*model.City, error)
 }

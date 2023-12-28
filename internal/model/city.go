@@ -10,6 +10,10 @@ type UpdateCityRequest struct {
 	Population int    `json:"population"`
 }
 
+type GetAllCitiesResponse struct {
+	Cities []*City `json:"cities"`
+}
+
 type City struct {
 	ID         string `json:"id" gorm:"primaryKey"`
 	Name       string `json:"name"`

@@ -41,3 +41,13 @@ func (r *MemoryCityRepository) GetById(id string) (*model.City, error) {
 
 	return city, nil
 }
+
+func (r *MemoryCityRepository) GetAll() ([]*model.City, error) {
+	cities := make([]*model.City, 0, len(r.data))
+
+	for _, city := range r.data {
+		cities = append(cities, city)
+	}
+
+	return cities, nil
+}

@@ -38,3 +38,24 @@ func (s *ThirdCityService) GetById(id string) (*model.City, error) {
 	}
 	return city, err
 }
+
+func (s *ThirdCityService) GetAll() ([]*model.City, error) {
+	resp, err := http.Get(s.citiesUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("Oops somthing gone wrong")
+	}
+
+	defer resp.Body.Close()
+
+	var res model.GetAllCitiesResponse
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		log.Fatal("Couldn't parse json:", err)
+		return nil, err
+	}
+	return res.Cities, err
+}

@@ -11,6 +11,7 @@ type ICityService interface {
 	Update(city *model.City) error
 	Delete(id string) error
 	GetById(id string) (*model.City, error)
+	GetAll() ([]*model.City, error)
 }
 
 type MockCityService struct {
@@ -38,5 +39,8 @@ func (s *MockCityService) Delete(id string) error {
 
 func (s *MockCityService) GetById(id string) (*model.City, error) {
 	return &model.City{ID: "mockID", Name: "mockName", Population: 0}, nil
+}
 
+func (s *MockCityService) GetAll() ([]*model.City, error) {
+	return []*model.City{{ID: "mockID", Name: "mockName", Population: 0}}, nil
 }

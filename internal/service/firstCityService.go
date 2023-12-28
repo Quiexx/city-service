@@ -65,6 +65,11 @@ func (s *FirstCityService) GetById(id string) (*model.City, error) {
 
 }
 
+func (s *FirstCityService) GetAll() ([]*model.City, error) {
+	cities, err := s.cityRep.GetAll()
+	return cities, err
+}
+
 func (s *FirstCityService) SendToKafka(city *model.City, operation string) {
 	mesId := uuid.NewString()
 	update := model.CityUpdate{

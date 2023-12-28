@@ -33,3 +33,10 @@ func (r *PGCityRepository) GetById(id string) (*model.City, error) {
 
 	return &city, res.Error
 }
+
+func (r *PGCityRepository) GetAll() ([]*model.City, error) {
+	var cities []*model.City
+	res := r.db.Find(&cities)
+
+	return cities, res.Error
+}
