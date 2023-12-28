@@ -20,6 +20,9 @@ import (
 )
 
 func main() {
+
+	// Load env
+
 	dbHost := os.Getenv("SERVICE_DB_HOST")
 	if len(dbHost) == 0 {
 		dbHost = "localhost"
@@ -50,12 +53,16 @@ func main() {
 		kafkaHost = "localhost:9092"
 	}
 
+	// Connect to DB
+
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+
+	// Create kafka reader
 
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:        []string{kafkaHost},
@@ -68,7 +75,10 @@ func main() {
 	cityRep := repository.NewPGCityRepository(db)
 	cityService := service.NewSecondCityService(cityRep)
 
+	// start listening topic
 	go startListeningTopic(kafkaReader, cityService)
+
+	// REST API
 
 	r := gin.Default()
 
@@ -92,6 +102,7 @@ func main() {
 func startListeningTopic(r *kafka.Reader, cityService service.ICityService) {
 	defer r.Close()
 	for {
+		// TODO: create table with kafka messages to skip already read messages
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
 			log.Fatal(err)
@@ -103,15 +114,16 @@ func startListeningTopic(r *kafka.Reader, cityService service.ICityService) {
 		}
 		log.Printf("Received udpate: %v", update)
 
-		if "INSERT" == update.Operation {
+		// TODO: handle errors
+		if update.Operation == "INSERT" {
 			cityService.CreateWithId(update.City.ID, update.City.Name, update.City.Population)
 		}
 
-		if "UPDATE" == update.Operation {
+		if update.Operation == "UPDATE" {
 			cityService.Update(&update.City)
 		}
 
-		if "DELETE" == update.Operation {
+		if update.Operation == "DELETE" {
 			cityService.Delete(update.City.ID)
 		}
 	}

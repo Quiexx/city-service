@@ -18,6 +18,8 @@ import (
 
 func main() {
 
+	// Load env
+
 	dbHost := os.Getenv("SERVICE_DB_HOST")
 	if len(dbHost) == 0 {
 		dbHost = "localhost"
@@ -48,12 +50,16 @@ func main() {
 		kafkaHost = "localhost:9092"
 	}
 
+	// Connect to DB
+
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+
+	// Create kafka writer
 
 	kafkaWriter := kafka.Writer{
 		Addr:                   kafka.TCP(kafkaHost),
@@ -63,6 +69,8 @@ func main() {
 
 	cityRep := repository.NewPGCityRepository(db)
 	cityService := service.NewFirstCityService(cityRep, &kafkaWriter)
+
+	// REST API
 
 	r := gin.Default()
 

@@ -11,11 +11,15 @@ import (
 
 func main() {
 
+	// Load env
+
 	citiesUrl := os.Getenv("CITY_URL")
 	if len(citiesUrl) == 0 {
 		citiesUrl = "http://localhost:8082/city"
 	}
 	cityService := service.NewThirdCityService(citiesUrl)
+
+	// API
 
 	r := gin.Default()
 
